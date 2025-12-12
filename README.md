@@ -13,6 +13,10 @@
 An ESPHome sketch to control the relay integrating with Home Assistant subscribing/publishing to MQTT server.  
 
 - turn_off_delay    delay (in seconds, range 0 - 300) before switching off the relay after the virtual switch (relay_control) is switched off
+- relay_1           on GPIO19 controls the relay
+- status_led        on GPIO2 controls the onboard LED
+- relay_control     virtual switch. ON turns on the relay, OFF turns off the relay after programmable time (in seconds) turn_off_delay
+  
 
 
 
