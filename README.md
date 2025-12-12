@@ -8,7 +8,7 @@
 - GPIO2	LED
 - GPIO19	Relay
 
-### ESPHome 
+### ESPHome - The ESP32-C6 is programmed using the ESPHome framework
 
 An ESPHome sketch to control the relay integrating with Home Assistant subscribing/publishing to MQTT server.  
 
@@ -16,6 +16,10 @@ An ESPHome sketch to control the relay integrating with Home Assistant subscribi
 - **relay_1**           switch (GPIO19) controls the relay off/on state
 - **status_led**        switch (GPIO2) controls the onboard LED off/on state
 - **relay_control**     is a virtual switch. ON turns on the relay, OFF turns off the relay after programmable time (in seconds) turn_off_delay
+
+### MQTT
+
+The sketch 
   
 
 
