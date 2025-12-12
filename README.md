@@ -30,7 +30,16 @@ This sketch is provided "as-is" as an example of how to control this ESP32-C6 Re
 - **status_led**        switch (GPIO2) controls the onboard LED off/on state
 - **relay_control**     is a virtual switch. ON turns on the relay, OFF turns off the relay after programmable time (in seconds) turn_off_delay
 
-  
+### Testing  
+Having uploaded the following sketch to the module via ESPHome, a quick test is to paste the following into a browser and check that the relay   
+opens and closes.  
+
+- **http://relay.localdomain/switch/relay_control/turn_on** and check that the relay is switched on (the relay powered LED should be lit) then...
+- **http://relay.localdomain/switch/relay_control/turn_off** checking that the status_led is lit for the turn_off_delay time (in seconds) then the relay should switch off with the status_led also switching off  
+
+
+- **http://relay.localdomain/switch/relay_control** should return the status of the virtual switch relay_control
+
 
 
 
