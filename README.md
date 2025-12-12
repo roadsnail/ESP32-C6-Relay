@@ -4,6 +4,8 @@
 
  I haven't yet been able to find a schematic for the module so I am unsure what isolation exists between the 7-60V DC input and the USB-C socket.  
 
+ I have programmed this using ESPHome. The initial loading of ESPHome (onto the module) was a pain taking several attempts. I'm guessing this may be due to fairly recent support for the C6 version of ESP32 module. 
+
  
 ![ESP32-C6-Relay_Module](https://github.com/user-attachments/assets/a2984527-bf0b-4460-a53b-7726257bcbf4)
 
