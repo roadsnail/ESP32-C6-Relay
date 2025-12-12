@@ -8,3 +8,8 @@
 - GPIO2	LED
 - GPIO19	Relay
 
+### ESPHome 
+
+An ESPHome sketch to control the relay also integrating to Home Assistant
+
+
