@@ -10,7 +10,13 @@
 
 ### ESPHome 
 
-An ESPHome sketch to control the relay also integrating to Home Assistant
+An ESPHome sketch to control the relay integrating with Home Assistant subscribing/publishing to MQTT server.  
+
+- turn_off_delay    delay (in seconds, range 0 - 300) before switching off the relay after the virtual switch (relay_control) is switched off
+
+
+
+
 
 ```
 esphome:
