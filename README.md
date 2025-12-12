@@ -56,7 +56,7 @@ wifi:
   power_save_mode: none
 
 mqtt:
-  broker: dell-opti1.localdomain
+  broker: mqtt_server.localdomain
   id: mqtt_client
 
   on_message:
