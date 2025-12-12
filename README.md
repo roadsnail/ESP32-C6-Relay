@@ -4,6 +4,9 @@
  
 ![ESP32-C6-Relay_Module](https://github.com/user-attachments/assets/a2984527-bf0b-4460-a53b-7726257bcbf4)
 
+![ESP32-C6-Relay_Module_1](https://github.com/user-attachments/assets/2bf053be-5092-455f-a437-f65b2f589947)
+
+
 ### GPIO Pin assisgnments
 - GPIO2	LED
 - GPIO19	Relay
