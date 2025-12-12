@@ -32,7 +32,7 @@ This sketch is provided "as-is" as an example of how to control this ESP32-C6 Re
 
 ### Testing  
 Having uploaded the following sketch to the module via ESPHome, a quick test is to paste the following into a browser and check that the relay   
-opens and closes.  
+opens and closes. Replace **relay.localdomain** with the IP address of your relay module.   
 
 - **http://relay.localdomain/switch/relay_control/turn_on** and check that the relay is switched on (the relay powered LED should be lit) then...
 - **http://relay.localdomain/switch/relay_control/turn_off** checking that the status_led is lit for the turn_off_delay time (in seconds) then the relay should switch off with the status_led also switching off  
