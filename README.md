@@ -36,9 +36,13 @@ opens and closes. Replace **relay.localdomain** with the IP address of your rela
 
 - **http://relay.localdomain/switch/relay_control/turn_on** and check that the relay is switched on (the relay powered LED should be lit) then...
 - **http://relay.localdomain/switch/relay_control/turn_off** checking that the status_led is lit for the turn_off_delay time (in seconds) then the relay should switch off with the status_led also switching off  
+- **http://relay.localdomain/switch/relay_control** will return the status of the virtual switch relay_control
 
+To control the physical relay...
+- **http://relay.localdomain/switch/main_relay__physical_/turn_off** (note underscores for spaces and brackets in Main Relay (Physical) )
+OR
+- **http://relay.localdomain/switch/main_relay__physical_/turn_on** (note underscores for spaces and brackets in Main Relay (Physical) )  
 
-- **http://relay.localdomain/switch/relay_control** should return the status of the virtual switch relay_control
 
 
 
