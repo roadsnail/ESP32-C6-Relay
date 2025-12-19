@@ -59,24 +59,9 @@ esphome:
   on_boot:
     priority: -10
     then:
-      # Publish relay state
-      - mqtt.publish:
-          topic: relay-controller/switch/main_relay/state
-          payload: !lambda "return id(relay_1).state ? \"ON\" : \"OFF\";"
-          retain: true
-
-      # Publish control state
-      - mqtt.publish:
-          topic: relay-controller/switch/relay_control/state
-          payload: !lambda "return id(relay_control_state) ? \"ON\" : \"OFF\";"
-          retain: true
-
-      # Publish turn-off delay
-      - mqtt.publish:
-          topic: relay-controller/switch/relay_control/turn_off_delay/state
-          payload: !lambda |-
-            return std::to_string(id(turn_off_delay));
-          retain: true
+      # set boot_complete flag true
+      - lambda: |-
+          id(boot_complete) = true;
 
 esp32:
   variant: esp32c6
@@ -92,32 +77,45 @@ wifi:
   password: !secret wifi_password
   power_save_mode: none
 
+#------------------
+# Define MQTT broker and mqtt actions
+#------------------
 mqtt:
-  broker: mqtt_server.localdomain
+  broker: mqtt-broker.localdomain
   id: mqtt_client
 
   on_message:
+    # monitor topic for turn_off_delay value in seconds
     - topic: relay-controller/switch/relay_control/turn_off_delay/set
       then:
         - lambda: |-
-            int new_delay = atoi(x.c_str());
-            if (new_delay < 0) new_delay = 0;
-            if (new_delay > 300) new_delay = 300;
-            id(turn_off_delay) = new_delay;
-            ESP_LOGI("mqtt", "Turn-off delay set to %d seconds (MQTT)", new_delay);
-
+            int d = atoi(x.c_str());
+            if (d < 0) d = 0;
+            if (d > 300) d = 300;
+            id(turn_off_delay) = d;
+        # publish delay time to topic
         - mqtt.publish:
             topic: relay-controller/switch/relay_control/turn_off_delay/state
-            payload: !lambda |-
-              return std::to_string(id(turn_off_delay));
+            payload: !lambda "return std::to_string(id(turn_off_delay));"
             retain: true
+
+    # monitor topic for relay_control ON/OFF values
+    - topic: relay-controller/switch/relay_control/set
+      then:
+        - if:
+            condition:
+              lambda: 'return x == "ON";'
+            then:
+              - switch.turn_on: relay_control
+            else:
+              - switch.turn_off: relay_control
 
 api:
 ota:
-- platform: esphome
+  - platform: esphome
 
 # -----------------------
-# GLOBALS
+# Define GLOBALS
 # -----------------------
 globals:
   - id: turn_off_delay
@@ -130,47 +128,48 @@ globals:
     restore_value: false
     initial_value: "false"
 
+  - id: boot_complete
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
 # -----------------------
-# SWITCHES
+# SCRIPT (NON-BLOCKING)
 # -----------------------
+script:
+  - id: delayed_turn_off
+    mode: restart
+    then:
+      - logger.log: "Delay active - blinking LED"
+      - repeat:
+          count: !lambda "return id(turn_off_delay) * 2;"
+          then:
+            - switch.toggle: status_led
+            - delay: 500ms
+
+      - switch.turn_off: status_led
+      - switch.turn_off: relay_1
+
+      # Force immediate HA update
+      - lambda: |-
+          id(relay_control).publish_state(false);
+
+# --------------------------------------------------------------
+# Define SWITCHES, relay_1, status_led and virtual relay_control
+# --------------------------------------------------------------
 switch:
-  # Physical relay
   - platform: gpio
     id: relay_1
     name: "Main Relay (Physical)"
     pin: GPIO19
 
-    on_turn_on:
-      - mqtt.publish:
-          topic: relay-controller/switch/main_relay/state
-          payload: "ON"
-          retain: true
 
-    on_turn_off:
-      - mqtt.publish:
-          topic: relay-controller/switch/main_relay/state
-          payload: "OFF"
-          retain: true
-
-  # LED
   - platform: gpio
-    name: "Status LED (Delay Active)"
     id: status_led
+    name: "Status LED (Delay Active)"
     pin: GPIO2
 
-  # Virtual control switch (UI)
-  # Virtual control switch
-  #
-  # to control, send...
-  # http://relay.localdomain/switch/relay_control/turn_off OR
-  # http://relay.localdomain/switch/relay_control/turn_on
-  #
-  # http://relay.localdomain/switch/main_relay__physical_/turn_off (note underscores for spaces and brackets in Main Relay (Physical) )
-  #
-  #To get status...
-  #
-  # http://relay.localdomain/switch/relay_control
-  #
+  # virtual switch to control the physical relay on GPIO19
   - platform: template
     id: relay_control
     name: "Relay Control"
@@ -178,29 +177,24 @@ switch:
     turn_on_action:
       - lambda: "id(relay_control_state) = true;"
       - switch.turn_on: relay_1
-      - mqtt.publish:
-          topic: relay-controller/switch/relay_control/state
-          payload: "ON"
-          retain: true
+      - lambda: |-
+          id(relay_control).publish_state(true);
 
     turn_off_action:
       - lambda: "id(relay_control_state) = false;"
-      - switch.turn_on: status_led
-      - mqtt.publish:
-          topic: relay-controller/switch/relay_control/state
-          payload: "OFF"
-          retain: true
-      - logger.log: "Starting turn-off delay..."
-      - delay: !lambda "return id(turn_off_delay) * 1000;"
-      - switch.turn_off: relay_1
-      - switch.turn_off: status_led
+      - if:
+          condition:
+            # if boot is complete, then run delayed_turn_off script when relay_control_state virtual switch goes OFF
+            # this flag stops the script executing at boot time when the virtual switch is set off
+            lambda: 'return id(boot_complete);'
+          then:
+            - script.execute: delayed_turn_off
 
     lambda: |-
-      // Report virtual switch state to HA, not physical relay
       return id(relay_control_state);
 
 # -----------------------
-# NUMBER ENTITY (HA UI)
+# NUMBER entity (HA)
 # -----------------------
 number:
   - platform: template
@@ -218,9 +212,10 @@ number:
     set_action:
       - lambda: |-
           id(turn_off_delay) = (int)x;
-          ESP_LOGI("delay", "Turn-off delay set to %d via HA", id(turn_off_delay));
+          id(ha_turn_off_delay).publish_state(id(turn_off_delay));
       - mqtt.publish:
           topic: relay-controller/switch/relay_control/turn_off_delay/state
           payload: !lambda "return std::to_string(id(turn_off_delay));"
           retain: true
+
 ```
