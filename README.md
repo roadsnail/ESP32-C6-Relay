@@ -41,7 +41,10 @@ opens and closes. Replace **relay.localdomain** with the IP address of your rela
 
 
 ### Turn-off Delay  
-The value of the turn_off_delay (0 to 300 seconds) may be set from Home Assistant OR by publishing the time payload (0 to 300) to mqtt-broker topic **relay-controller/switch/relay_control/turn_off_delay/set**  
+The value of the turn_off_delay (0 to 300 seconds) may be set from Home Assistant OR by publishing the time payload (0 to 300) to mqtt-broker topic **relay-controller/switch/relay_control/turn_off_delay/set** 
+
+<img width="428" height="176" alt="HA-Relay" src="https://github.com/user-attachments/assets/a69e0117-0353-4edc-8b9b-7dc0a79a1dc9" />
+
 
 The turn-off delay can be read by subscribing to the topic **relay-controller/switch/relay_control/turn_off_delay/state**  
 
