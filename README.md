@@ -52,7 +52,7 @@ The turn-off delay can be read by subscribing to the topic **relay-controller/sw
 The value of the virtual switch **relay_control** may be set from Home Assistant OR by publishing the payload "ON" or "OFF" to mqtt-broker topic **relay-controller/switch/relay_control/set**   
 
 
-## Sketch
+## YAML
 
 ```
 esphome:
