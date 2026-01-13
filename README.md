@@ -21,7 +21,7 @@
 
 A basic ESPHome sketch to control the relay integrating with Home Assistant subscribing/publishing to MQTT server.  
 
-It's function is to control the module's relay using a virtual switch (relay_control) to switch the relay ON immediately. Switching OFF the relay via the virtual switch starts a time (turn_off_delay) which on expiry switches the relay OFF.  
+Its function is to control the module's relay using a virtual switch (relay_control) to switch the relay ON immediately. Switching OFF the relay via the virtual switch starts a time (turn_off_delay) which on expiry switches the relay OFF.  
 The turn_off_delay is programmable from Home Assistant enabling a turn off time between 0 and 300 seconds  
 This sketch is provided "as-is" as an example of how to control this ESP32-C6 Relay module with integration with MQTT and Home Assistant. 
 
